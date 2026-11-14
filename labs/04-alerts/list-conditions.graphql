@@ -1,0 +1,19 @@
+# List the NRQL conditions of a policy (idempotency check + "show me what the script made").
+query($accountId: Int!, $policyId: ID!) {
+  actor {
+    account(id: $accountId) {
+      alerts {
+        nrqlConditionsSearch(searchCriteria: { policyId: $policyId }) {
+          nrqlConditions {
+            id
+            name
+            type
+            enabled
+            nrql { query }
+            terms { threshold thresholdDuration operator priority }
+          }
+        }
+      }
+    }
+  }
+}

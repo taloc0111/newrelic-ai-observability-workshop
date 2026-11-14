@@ -1,0 +1,38 @@
+# APM auto-attach for SimplCommerce (k8s-agents-operator). Applied by install-newrelic.sh.
+# The operator watches pod CREATE: a pod in namespace simplcommerce with label app=simplcommerce gets an
+# initContainer that copies the .NET agent into a shared volume and the CORECLR_* / NEW_RELIC_* env that
+# makes the runtime load it. No image change, no code change - the same idea as OneAgent injection.
+#
+# apiVersion: check what your operator serves before applying (install-newrelic.sh prints it):
+#   (v1beta3 on nri-bundle as of 2026-11; v1beta2 specs apply unchanged)
+#   kubectl get crd instrumentations.newrelic.com -o jsonpath='{.spec.versions[?(@.storage==true)].name}'
+apiVersion: newrelic.com/v1beta3
+kind: Instrumentation
+metadata:
+  name: simplcommerce-dotnet
+  namespace: newrelic
+spec:
+  agent:
+    language: dotnet
+    image: newrelic/newrelic-dotnet-init:latest
+    env:
+      - name: NEW_RELIC_APP_NAME
+        value: SimplCommerce                      # the APM entity name used in every NRQL query of the labs
+      - name: NEW_RELIC_LABELS
+        value: "env:workshop;team:nashtech"
+      - name: NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED
+        value: "true"                             # logs in context: .NET ILogger lines arrive with trace.id / span.id
+      - name: NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
+        value: "true"
+      - name: NEW_RELIC_LOG_LEVEL
+        value: "info"
+  namespaceLabelSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values: ["simplcommerce"]
+  podLabelSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: ["simplcommerce"]

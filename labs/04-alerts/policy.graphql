@@ -1,0 +1,9 @@
+# Lab 1 - alert policy. One policy for the workshop; conditions attach to it, the workflow filters on its id.
+# PER_CONDITION_AND_TARGET: one issue per condition per entity, so the Issue page shows distinct symptoms
+# before Incident Intelligence correlates them (Lab 3).
+mutation($accountId: Int!, $name: String!) {
+  alertsPolicyCreate(accountId: $accountId, policy: { name: $name, incidentPreference: PER_CONDITION_AND_TARGET }) {
+    id
+    name
+  }
+}

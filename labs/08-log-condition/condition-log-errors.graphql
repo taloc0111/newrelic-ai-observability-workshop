@@ -1,0 +1,29 @@
+# Lab 5 - static NRQL condition on error-log count. Above 5 lines in a 60 s window, CRITICAL.
+# Verified 2026-11-07 on a live account:
+#   - EVENT_TIMER, not EVENT_FLOW: error logs arrive in bursts, and EVENT_FLOW only closes a window when later
+#     events arrive, so a burst with nothing after it was never evaluated. EVENT_TIMER evaluates on the clock
+#     (docs: "event timer works best for data that arrives infrequently in batches"). EVENT_TIMER takes
+#     aggregationTimer and rejects aggregationDelay.
+#   - fillOption NONE + expiration 4 min: count(*) never reports 0 on its own, so the alert event closes by loss of
+#     signal 4 min after the last matching log line (closeCause LOSS_OF_SIGNAL). Gap filling cannot do that reliably.
+#   - A burst must last longer than ~2 min for the issue to ACTIVATE, merge with the error-rate issue and feed a
+#     compound alert: faults.sh throw defaults to 150 s for that reason.
+mutation($accountId: Int!, $policyId: ID!, $name: String!, $query: Nrql!) {
+  alertsNrqlConditionStaticCreate(
+    accountId: $accountId
+    policyId: $policyId
+    condition: {
+      name: $name
+      enabled: true
+      description: "More than 5 ERROR log lines per minute from the SimplCommerce agent, faceted by entity so the alert event lands on the APM entity (Lab 5, detection as code)."
+      nrql: { query: $query }
+      signal: { aggregationWindow: 60, aggregationMethod: EVENT_TIMER, aggregationTimer: 60, fillOption: NONE }
+      terms: [{ threshold: 5, thresholdDuration: 60, thresholdOccurrences: ALL, operator: ABOVE, priority: CRITICAL }]
+      expiration: { expirationDuration: 240, closeViolationsOnExpiration: true, openViolationOnExpiration: false }
+      violationTimeLimitSeconds: 3600
+    }
+  ) {
+    id
+    name
+  }
+}

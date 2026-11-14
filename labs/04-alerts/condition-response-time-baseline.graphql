@@ -1,0 +1,23 @@
+# Lab 1, "gen 1": a baseline (anomaly) condition on SimplCommerce response time. New Relic learns the
+# normal band from history; UPPER_ONLY fires on slow-downs, not speed-ups. Threshold 3 = 3 standard
+# deviations for 5 minutes. On a fresh account it stays quiet for days - that is the point of the lab:
+# the fixed threshold is what fires in Lab 3, the baseline is what you keep for later.
+mutation($accountId: Int!, $policyId: ID!, $name: String!, $query: Nrql!) {
+  alertsNrqlConditionBaselineCreate(
+    accountId: $accountId
+    policyId: $policyId
+    condition: {
+      name: $name
+      enabled: true
+      description: "SimplCommerce response time 3 standard deviations above its learned baseline for 5 minutes (Lab 1, anomaly)."
+      baselineDirection: UPPER_ONLY
+      nrql: { query: $query }
+      signal: { aggregationWindow: 60, aggregationMethod: EVENT_FLOW, aggregationDelay: 120, fillOption: NONE }
+      terms: [{ threshold: 3, thresholdDuration: 300, thresholdOccurrences: ALL, operator: ABOVE, priority: WARNING }]
+      violationTimeLimitSeconds: 3600
+    }
+  ) {
+    id
+    name
+  }
+}

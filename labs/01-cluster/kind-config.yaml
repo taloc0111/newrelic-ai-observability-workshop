@@ -1,0 +1,13 @@
+# Workshop cluster - single node keeps the RAM budget small (one app pod, one SQL Server,
+# the New Relic bundle and, for Lab 7, a small Ollama model).
+# extraPortMappings makes the app reachable from the Windows browser:
+#   Service nodePort 30080 -> WSL host port 8080 -> Windows localhost:8080
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: nr-workshop
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 8080
+        protocol: TCP

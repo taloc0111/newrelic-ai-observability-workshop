@@ -1,0 +1,30 @@
+# Lab 1, "gen 2": a fixed 5 % error-rate threshold on the SimplCommerce APM entity.
+# Why fixed on day one: the baseline condition next to it needs hours of history before it says anything.
+# Signal: 60 s windows evaluated on a 60 s timer (EVENT_TIMER), threshold held for one window (60 s is the API
+#   minimum for thresholdDuration). Rehearsal 2026-11-07: with EVENT_FLOW the condition never fired on a database
+#   outage, because the app crashed within a minute and no later Transaction event arrived to close the window that
+#   held the 500s. EVENT_TIMER evaluates on the clock. 30 s windows were tried and rejected: with the 60 s floor they
+#   need two consecutive windows above the threshold, which the short crash burst does not give.
+# Loss of signal: when the app stops reporting for 3 min (crash loop), OPEN an alert event on SimplCommerce -
+#   "no transactions" is the outage signal here - and close it again once data is back (closeViolationsOnExpiration).
+#   3 min (not 5) so the "Signal lost" event joins the issue while the error-log event still holds it open, and so the
+#   issue closes 1-2 min after the rollback. Closes itself after 1 h at most.
+mutation($accountId: Int!, $policyId: ID!, $name: String!, $query: Nrql!) {
+  alertsNrqlConditionStaticCreate(
+    accountId: $accountId
+    policyId: $policyId
+    condition: {
+      name: $name
+      enabled: true
+      description: "SimplCommerce error rate above 5 % for one minute, or no transactions for 3 minutes (Lab 1, fixed threshold)."
+      nrql: { query: $query }
+      signal: { aggregationWindow: 60, aggregationMethod: EVENT_TIMER, aggregationTimer: 60, fillOption: NONE }
+      terms: [{ threshold: 5, thresholdDuration: 60, thresholdOccurrences: ALL, operator: ABOVE, priority: CRITICAL }]
+      expiration: { expirationDuration: 180, closeViolationsOnExpiration: true, openViolationOnExpiration: true }
+      violationTimeLimitSeconds: 3600
+    }
+  ) {
+    id
+    name
+  }
+}

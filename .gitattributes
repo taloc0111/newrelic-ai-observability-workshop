@@ -1,0 +1,16 @@
+# Lab files are executed inside WSL/Linux: keep LF even on Windows checkouts (Git autocrlf would otherwise break bash with ).
+* text=auto
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.dql text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+Dockerfile text eol=lf
+*.png binary
+*.pptx binary
+*.docx binary
+*.graphql text eol=lf
+*.nrql text eol=lf

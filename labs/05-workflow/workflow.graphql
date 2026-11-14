@@ -1,0 +1,23 @@
+# Lab 2 - workflow: WHEN to notify. Filter = issues whose policy id is the Lab 1 policy; send on ACTIVATED and CLOSED
+# so the phone shows both the open and the auto-close (Lab 3 step 6). NOTIFY_ALL_ISSUES ignores muting rules.
+mutation($accountId: Int!, $name: String!, $policyId: String!, $channelId: ID!) {
+  aiWorkflowsCreateWorkflow(
+    accountId: $accountId
+    createWorkflowData: {
+      name: $name
+      workflowEnabled: true
+      destinationsEnabled: true
+      enrichmentsEnabled: false
+      mutingRulesHandling: NOTIFY_ALL_ISSUES
+      issuesFilter: {
+        name: "nr-workshop policy"
+        type: FILTER
+        predicates: [{ attribute: "labels.policyIds", operator: EXACTLY_MATCHES, values: [$policyId] }]
+      }
+      destinationConfigurations: [{ channelId: $channelId, notificationTriggers: [ACTIVATED, CLOSED] }]
+    }
+  ) {
+    workflow { id name workflowEnabled }
+    errors { description type }
+  }
+}

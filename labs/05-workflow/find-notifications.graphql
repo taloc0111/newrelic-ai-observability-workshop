@@ -1,0 +1,14 @@
+# Idempotency helper: existing destinations / channels / workflows with the workshop name.
+query($accountId: Int!, $name: String!) {
+  actor {
+    account(id: $accountId) {
+      aiNotifications {
+        destinations(filters: { name: $name }) { entities { id name type } }
+        channels(filters: { name: $name }) { entities { id name type destinationId } }
+      }
+      aiWorkflows {
+        workflows(filters: { name: $name }) { entities { id name workflowEnabled } }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+# Lab 2 - channel: WHAT is sent to the destination. product IINT = issues from Incident Intelligence.
+# The payload is a Handlebars template over the issue (issueTitle, issueId, priority, state, entitiesData...).
+# Template text comes from channel-payload.json via the @payload variable.
+mutation($accountId: Int!, $name: String!, $destinationId: ID!, $payload: String!) {
+  aiNotificationsCreateChannel(
+    accountId: $accountId
+    channel: {
+      type: WEBHOOK
+      name: $name
+      destinationId: $destinationId
+      product: IINT
+      properties: [{ key: "payload", value: $payload, label: "Payload Template" }]
+    }
+  ) {
+    channel { id name }
+    error {
+      ... on AiNotificationsResponseError { description details type }
+      ... on AiNotificationsDataValidationError { details fields { field message } }
+      ... on AiNotificationsConstraintsError { constraints { name dependencies } }
+    }
+  }
+}

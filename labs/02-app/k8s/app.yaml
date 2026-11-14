@@ -1,0 +1,108 @@
+# SimplCommerce app. __IMAGE__ is substituted at apply time (build-deploy Step 3)
+# with the locally built tag (e.g. simplcommerce:v1). imagePullPolicy MUST be
+# IfNotPresent: the image exists only inside kind (via `kind load`), a registry
+# pull can never succeed. The migrate initContainer applies the EF schema
+# (sqlcmd + the baked dbscript.sql) before the web container starts; the app
+# reads config from the DB at boot, so the schema must exist first.
+#
+# New Relic: nothing in this file. The k8s-agents-operator (Step 4) matches the
+# pod label app=simplcommerce and injects the .NET agent at pod start
+# (initContainer + CORECLR_* / NEW_RELIC_* env). Zero code change.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: simplcommerce-secret
+  namespace: simplcommerce
+type: Opaque
+stringData:
+  # Keep the password in sync with mssql-secret.
+  ConnectionStrings__DefaultConnection: "Server=mssql;Database=SimplCommerce;User Id=sa;Password=Ch@ngeMe_Demo123!;TrustServerCertificate=true;MultipleActiveResultSets=true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simplcommerce
+  namespace: simplcommerce
+  labels: { app: simplcommerce }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: simplcommerce }
+  template:
+    metadata:
+      labels: { app: simplcommerce }
+    spec:
+      initContainers:
+        # Apply the EF migration schema before the app boots (the app reads config
+        # from the DB at startup). sqlcmd waits for SQL Server, ensures the DB exists,
+        # then runs the idempotent script baked into the image at /app/dbscript.sql.
+        - name: migrate
+          image: __IMAGE__
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              SQLCMD=/opt/mssql-tools18/bin/sqlcmd
+              echo "waiting for SQL Server..."
+              for i in $(seq 1 40); do
+                $SQLCMD -S mssql -U sa -P "$SA_PASSWORD" -C -l 5 -Q "SELECT 1" >/dev/null 2>&1 && break || sleep 5
+              done
+              echo "ensuring database exists..."
+              $SQLCMD -S mssql -U sa -P "$SA_PASSWORD" -C -Q "IF DB_ID('SimplCommerce') IS NULL CREATE DATABASE [SimplCommerce];"
+              echo "applying migration script..."
+              # -I: SET QUOTED_IDENTIFIER ON (sqlcmd defaults it OFF, unlike SSMS);
+              #     required or SimplCommerce's filtered-index CREATEs fail (Msg 1934),
+              #     aborting the batch so no tables get created.
+              # -b: exit non-zero on any SQL error (else sqlcmd swallows failures and the
+              #     app boots against an empty DB -> EFConfigProvider "Invalid object name").
+              $SQLCMD -S mssql -U sa -P "$SA_PASSWORD" -C -I -b -d SimplCommerce -i /app/dbscript.sql
+              echo "migration done."
+          env:
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: mssql-secret, key: SA_PASSWORD }
+      containers:
+        - name: web
+          image: __IMAGE__
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_HTTP_PORTS
+              value: "8080"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef: { name: simplcommerce-secret, key: ConnectionStrings__DefaultConnection }
+          # /health depends on the database. Keep the pod in the Service and alive for ~3 minutes after the database
+          # disappears, so the app serves real HTTP 500s long enough for the error-rate and error-log conditions to
+          # evaluate (60 s windows), merge into one issue, and only then crash-loops into the loss-of-signal story.
+          # With the probe defaults (3 failures) the pod left the Service after ~30 s and the alert was a coin toss.
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 18
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 10
+          resources:
+            requests: { cpu: "250m", memory: "512Mi" }
+            limits: { memory: "1Gi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simplcommerce
+  namespace: simplcommerce
+spec:
+  type: NodePort
+  selector: { app: simplcommerce }
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30080

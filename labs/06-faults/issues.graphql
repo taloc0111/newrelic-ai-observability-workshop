@@ -1,0 +1,23 @@
+# Issues (Incident Intelligence) in the account. States filter is optional: ACTIVATED/CREATED = open; CLOSED = closed.
+query($accountId: Int!) {
+  actor {
+    account(id: $accountId) {
+      aiIssues {
+        issues {
+          issues {
+            issueId
+            title
+            state
+            priority
+            createdAt
+            closedAt
+            policyName
+            conditionName
+            entityNames
+            incidentIds
+          }
+        }
+      }
+    }
+  }
+}

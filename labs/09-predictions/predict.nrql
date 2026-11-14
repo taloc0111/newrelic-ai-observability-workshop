@@ -1,0 +1,17 @@
+-- Lab 6 - NRQL Predictions (predictive AI). Paste into the Query builder and run.
+-- PREDICT extends the chart with a forecast and a confidence band (Holt-Winters). Needs history:
+-- a few hours of loadgen traffic (3-4 h is enough for 5-minute buckets). Fresh accounts have nothing to predict.
+-- Billing: PREDICT queries consume Core CCUs (not Advanced Compute). Verified on 2026-11-07.
+SELECT count(*) FROM Transaction
+WHERE appName = 'SimplCommerce'
+TIMESERIES 5 minutes SINCE 6 hours ago
+PREDICT
+
+-- Variant: predict further out from a longer training window (predict 2 h ahead using 12 h of history).
+-- Clause order is PREDICT [holtwinters(...)] [BY <span>] [USING <span>]; USING before BY is a syntax error.
+-- SELECT count(*) FROM Transaction WHERE appName = 'SimplCommerce' TIMESERIES 5 minutes SINCE 12 hours ago PREDICT BY 2 hours USING 12 hours
+
+-- Capacity trend ("memory full in N days"): SQL Server working set on the kind node, 2 days ahead.
+-- History buckets + forecast buckets must stay under 366 (NRDB limit), so widen the bucket when you look further out.
+-- (K8sVolumeSample on kind carries no pvcName for mssql-data, so a PVC forecast is empty here.)
+-- SELECT average(memoryWorkingSetBytes)/1e6 FROM K8sContainerSample WHERE containerName = 'mssql' TIMESERIES 1 hour SINCE 3 days ago PREDICT BY 2 days

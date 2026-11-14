@@ -1,0 +1,9 @@
+{
+  "_comment": "Lab 8 (optional) - New Relic Ground Truth (formerly AI MCP Server, GA since Sep 2026). VS Code: copy to .vscode/mcp.json; the editor opens a browser for OAuth on first use, no key in this file. Claude Code: see README (claude mcp add + claude mcp login).",
+  "servers": {
+    "new-relic-mcp": {
+      "url": "https://mcp.newrelic.com/mcp/",
+      "type": "http"
+    }
+  }
+}

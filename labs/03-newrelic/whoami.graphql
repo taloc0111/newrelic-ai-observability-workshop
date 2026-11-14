@@ -1,0 +1,7 @@
+# Smoke test for the User key: who am I, which accounts can I see. Expect your account id in the list.
+{
+  actor {
+    user { email name }
+    accounts { id name }
+  }
+}

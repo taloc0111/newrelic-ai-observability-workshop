@@ -1,0 +1,12 @@
+-- Lab 5 - detection as code: alert on anything you can express in NRQL.
+-- The condition watches the .NET agent's logs-in-context (newrelic.source = 'logs.APM'): they carry level = 'ERROR'
+-- and entity.guid, and FACET entity.guid makes the alert event land on the SimplCommerce APM entity. That is what
+-- lets Incident Intelligence merge it with the Lab 1 error-rate alert event (verified 2026-11-07: one issue, 3 events).
+SELECT count(*) FROM Log
+WHERE entity.name = 'SimplCommerce' AND level = 'ERROR'
+FACET entity.guid
+
+-- Compare with the Kubernetes pod logs from Fluent Bit (newrelic-logging): same lines, but no level attribute
+-- (.NET console output starts with "fail:"), no entity, so a condition on them opens an issue on "Log query"
+-- that nothing can correlate. Run both in the Query builder with TIMESERIES 1 minute and compare.
+-- SELECT count(*) FROM Log WHERE namespace_name = 'simplcommerce' AND (level = 'ERROR' OR message LIKE '%fail:%')

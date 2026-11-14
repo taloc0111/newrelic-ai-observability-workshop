@@ -1,0 +1,12 @@
+# Idempotency helper: find a policy by exact name (used by every create-*.sh).
+query($accountId: Int!, $name: String!) {
+  actor {
+    account(id: $accountId) {
+      alerts {
+        policiesSearch(searchCriteria: { name: $name }) {
+          policies { id name incidentPreference }
+        }
+      }
+    }
+  }
+}

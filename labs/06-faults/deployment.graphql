@@ -1,0 +1,11 @@
+# Change tracking: record a deployment on the SimplCommerce APM entity. Shows as a marker on APM charts
+# and in the Issue page timeline - the "was it a change?" question answered without an LLM.
+mutation($entityGuid: EntityGuid!, $version: String!, $description: String) {
+  changeTrackingCreateDeployment(
+    deployment: { entityGuid: $entityGuid, version: $version, description: $description, deploymentType: ROLLING, user: "nr-workshop" }
+  ) {
+    deploymentId
+    timestamp
+    version
+  }
+}

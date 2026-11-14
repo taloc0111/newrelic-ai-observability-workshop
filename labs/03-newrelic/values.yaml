@@ -1,0 +1,56 @@
+# nri-bundle values for the kind workshop cluster. The license key is NOT in this file:
+# install-newrelic.sh passes it with --set global.licenseKey from ~/.nr-keys.
+#
+# What each sub-chart gives the labs:
+#   newrelic-infrastructure  node + pod + container samples (K8sPodSample, K8sContainerSample) -> Kubernetes UI, Lab 1/3 signals
+#   nri-kube-events          Kubernetes events (BackOff, Unhealthy, Scheduled) -> InfrastructureEvent, Issue page timeline
+#   kube-state-metrics       workload state the infrastructure chart reads
+#   nri-metadata-injection   pod/namespace/cluster attributes on APM data (links the APM app to its pod in the entity map)
+#   newrelic-logging         Fluent Bit tailing pod stdout -> Log events with namespace_name / pod_name (Lab 5 condition, Lab 4 logs)
+#   newrelic-prometheus-agent  scrapes annotated endpoints; low data mode keeps the free 100 GB safe
+#   k8s-agents-operator      APM auto-attach: injects the .NET agent into pods matching an Instrumentation CR (instrumentation.yaml)
+global:
+  cluster: nr-workshop
+  lowDataMode: false          # we want pod logs and events for the labs; flip to true on a shared/free account under pressure
+
+newrelic-infrastructure:
+  enabled: true
+  privileged: true
+
+nri-metadata-injection:
+  enabled: true
+
+kube-state-metrics:
+  enabled: true
+
+nri-kube-events:
+  enabled: true
+
+newrelic-logging:
+  enabled: true
+  lowDataMode: false
+  fluentBit:
+    # kind nodes are containers; the default /var mount still works. Keep a local positions DB so a restart does not re-ship everything.
+    persistence:
+      mode: hostPath
+
+newrelic-prometheus-agent:
+  enabled: true
+  lowDataMode: true
+
+k8s-agents-operator:
+  enabled: true
+
+# Not needed on a laptop cluster.
+nri-prometheus:
+  enabled: false
+newrelic-pixie:
+  enabled: false
+pixie-chart:
+  enabled: false
+newrelic-infra-operator:
+  enabled: false
+newrelic-k8s-metrics-adapter:
+  enabled: false
+nr-ebpf-agent:
+  enabled: false

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: simplcommerce
+  labels:
+    # The New Relic Instrumentation CR (labs/03-newrelic/instrumentation.yaml) selects this namespace by name.
+    kubernetes.io/metadata.name: simplcommerce

@@ -1,0 +1,53 @@
+# --- secrets / private notes -------------------------------------------------
+note.txt
+*.keys
+.nr-keys
+.nr-policy-id
+*.env
+.env.*
+.mcp.json
+.vscode/mcp.json
+
+# --- deliverables are NOT committed: rebuild them from src/ and build/ ------------
+*.pptx
+*.docx
+*.html
+# except the trainee guide handed out with the repo (rebuilt by build/generate_guide.py, then copied to docs/)
+!docs/NewRelic_AI_HandsOn_Guide.docx
+
+# --- generated intermediates / backups --------------------------------------------
+src/handson-guide.md
+*.bk
+*.bak
+*~
+* - Copy*.docx
+* - Copy*.pptx
+~$*.docx
+~$*.pptx
+~$*.xlsx
+
+# --- python / tooling -----------------------------------------------------------
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.pytest_cache/
+
+# --- editors / OS ---------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- lab runtime output (never commit cluster state or downloaded binaries) -----
+labs/**/*.log
+labs/**/kubeconfig*
+labs/**/*.tgz
+NOT-YET-VERIFIED.md
+
+# --- local-only: build scripts and figures/screenshots stay on the presenter machine ---
+build/
+assets/
+PRESENTER-NOTES.md
+DOCS-DIFF-*.md

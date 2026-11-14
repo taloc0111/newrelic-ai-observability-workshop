@@ -1,0 +1,46 @@
+# Lab 7 - toy LLM service next to SimplCommerce. The Secret ai-descgen-secret (OPENAI_API_KEY, NEW_RELIC_LICENSE_KEY)
+# is created by run-demo.sh from ~/.nr-keys and a no-echo prompt; it is deliberately NOT in this file.
+# Placeholders __MODEL__, __OPENAI_BASE_URL__, __NR_HOST__ are filled by run-demo.sh.
+# The pod has no app=simplcommerce label, so the k8s-agents-operator leaves it alone: the Python agent is baked into the image.
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: ai-descgen, namespace: simplcommerce }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: ai-descgen } }
+  template:
+    metadata: { labels: { app: ai-descgen } }
+    spec:
+      containers:
+        - name: web
+          image: ai-descgen:v1          # built and kind-loaded by run-demo.sh
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8000 }]
+          env:
+            - { name: NEW_RELIC_APP_NAME, value: "ai-descgen" }
+            - { name: NEW_RELIC_AI_MONITORING_ENABLED, value: "true" }                   # LlmChatCompletion* events
+            - { name: NEW_RELIC_AI_MONITORING_RECORD_CONTENT_ENABLED, value: "true" }    # prompt + response text (off by default)
+            - { name: NEW_RELIC_AI_MONITORING_STREAMING_ENABLED, value: "true" }
+            - { name: NEW_RELIC_DISTRIBUTED_TRACING_ENABLED, value: "true" }
+            - { name: NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED, value: "true" }
+            - { name: NEW_RELIC_LOG, value: "stdout" }
+            - { name: NEW_RELIC_LOG_LEVEL, value: "info" }
+            - { name: NEW_RELIC_HOST, value: "__NR_HOST__" }                            # collector.newrelic.com (US) or collector.eu01.nr-data.net (EU)
+            - { name: NEW_RELIC_LABELS, value: "env:workshop;team:nashtech" }
+            - { name: MODEL, value: "__MODEL__" }
+            - { name: OPENAI_BASE_URL, value: "__OPENAI_BASE_URL__" }                   # empty = api.openai.com; http://ollama:11434/v1 for the in-cluster model
+            - name: OPENAI_API_KEY
+              valueFrom: { secretKeyRef: { name: ai-descgen-secret, key: OPENAI_API_KEY } }
+            - name: NEW_RELIC_LICENSE_KEY
+              valueFrom: { secretKeyRef: { name: ai-descgen-secret, key: NEW_RELIC_LICENSE_KEY } }
+          readinessProbe: { httpGet: { path: /health, port: 8000 }, initialDelaySeconds: 5, periodSeconds: 5 }
+          resources:
+            requests: { cpu: "50m", memory: "128Mi" }
+            limits: { memory: "512Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: ai-descgen, namespace: simplcommerce }
+spec:
+  selector: { app: ai-descgen }
+  ports: [{ port: 80, targetPort: 8000 }]

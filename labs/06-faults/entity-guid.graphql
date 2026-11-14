@@ -1,0 +1,10 @@
+# Find the APM entity GUID by name (used by record-deployment.sh and the NRAI prompt sheet).
+query($query: String!) {
+  actor {
+    entitySearch(query: $query) {
+      results {
+        entities { guid name entityType domain }
+      }
+    }
+  }
+}

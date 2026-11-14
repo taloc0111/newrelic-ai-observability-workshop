@@ -1,0 +1,7 @@
+{
+  "topic": "__NTFY_TOPIC__",
+  "title": "New Relic {{ priority }} issue {{ state }}",
+  "message": "{{ issueTitle }} | id {{ issueId }} | policy {{ accumulations.policyName.[0] }} | entities {{#each entitiesData.names}}{{this}} {{/each}}| {{ issuePageUrl }}",
+  "tags": ["rotating_light"],
+  "priority": 4
+}

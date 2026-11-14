@@ -1,0 +1,22 @@
+# Lab 6 - predictive alerting: a static condition that ALSO opens an issue when the forecast is expected to cross
+# the threshold within predictBy seconds (1 h here). preferPredictionViolation false = real breaches still win.
+# NOT YET VERIFIED against a live account: the `prediction` block is the GA (Jul 2025) shape; if NerdGraph rejects it,
+# compare with the schema explorer (Alerts -> condition -> "View as code" shows the current field names).
+mutation($accountId: Int!, $policyId: ID!, $name: String!, $query: Nrql!) {
+  alertsNrqlConditionStaticCreate(
+    accountId: $accountId
+    policyId: $policyId
+    condition: {
+      name: $name
+      enabled: true
+      description: "SimplCommerce throughput predicted to drop below 10 requests per minute within the next hour (Lab 6, predictive alert)."
+      nrql: { query: $query }
+      signal: { aggregationWindow: 300, aggregationMethod: EVENT_FLOW, aggregationDelay: 120, fillOption: NONE }
+      terms: [{ threshold: 10, thresholdDuration: 300, thresholdOccurrences: ALL, operator: BELOW, priority: WARNING, prediction: { predictBy: 3600, preferPredictionViolation: false } }]
+      violationTimeLimitSeconds: 3600
+    }
+  ) {
+    id
+    name
+  }
+}

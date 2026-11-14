@@ -1,0 +1,37 @@
+# Steady background traffic so New Relic has something to observe — a request
+# every ~2s across pages that exist on a FRESH SimplCommerce database (the repo
+# ships no product catalog seed, so product/brand URLs would 404 — and a 404
+# stream trains the wrong signal). Scale to 0 to pause:
+#   kubectl -n simplcommerce scale deploy/loadgen --replicas=0
+# Added products via the admin UI? Append their real URLs to PAGES for richer
+# DB traffic in the New Relic traces.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  namespace: simplcommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: loadgen }
+  template:
+    metadata:
+      labels: { app: loadgen }
+    spec:
+      containers:
+        - name: curl
+          image: curlimages/curl:8.10.1
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              PAGES="/ /search?query=phone /search?query=laptop /login /register /cart"
+              while true; do
+                for p in $PAGES; do
+                  code=$(curl -s -o /dev/null -w '%{http_code}' "http://simplcommerce$p")
+                  echo "$(date -u +%H:%M:%S) GET $p -> $code"
+                  sleep 2
+                done
+              done
+          resources:
+            requests: { cpu: "10m", memory: "16Mi" }
+            limits: { memory: "64Mi" }

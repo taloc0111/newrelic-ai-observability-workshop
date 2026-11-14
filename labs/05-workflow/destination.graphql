@@ -1,0 +1,16 @@
+# Lab 2 - destination: WHERE notifications go. A generic webhook to ntfy.sh (email on a free account
+# works too, but a webhook shows the payload template and lands on a phone in two seconds).
+# ntfy accepts a JSON publish at the root URL: POST https://ntfy.sh  {"topic": "...", "title": "...", "message": "..."}
+mutation($accountId: Int!, $name: String!, $url: String!) {
+  aiNotificationsCreateDestination(
+    accountId: $accountId
+    destination: { type: WEBHOOK, name: $name, properties: [{ key: "url", value: $url }] }
+  ) {
+    destination { id name type }
+    error {
+      ... on AiNotificationsResponseError { description details type }
+      ... on AiNotificationsDataValidationError { details fields { field message } }
+      ... on AiNotificationsConstraintsError { constraints { name dependencies } }
+    }
+  }
+}
