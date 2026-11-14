@@ -86,7 +86,12 @@ Other faults in `faults.sh`: `500s` (clean 5xx burst, app stays up), `throw` (ex
 
 Goal: natural language in, NRQL out - and learn to read what comes out. Kit: `labs/07-nrai/prompts.md` (prompts), `labs/07-nrai/nrql-cheatsheet.md` (the NRQL to run by hand on an account without New Relic AI).
 
-New Relic AI is GA (June 2025) and billed as **Advanced Compute**: an account without the add-on has no **Ask AI** button. The cheat sheet reproduces every answer as NRQL so the lab works on a free account; the talking points are the same.
+New Relic AI is GA (June 2025) and billed as **Advanced Compute**. On a free account the **Ask AI** button is still there but the panel says **"Ask AI - Offline: Ask AI requires the Advanced Compute add-on"** with a *Get access* link (and, next to it, **Autopilot** in public preview at no cost, with its own *Get access*). Two places switch it on, both as the account owner/admin:
+
+1. **Administration -> Feature Control -> New Relic AI -> Activate** (the Feature Control Manager; the page warns "we start billing for usage as soon as you activate a feature"). On the course account this reads *On for all accounts*, and Ask AI is online.
+2. **Administration -> Previews & Trials -> Trials -> "Advanced Compute - 30 Day Trial"** (status *Available* until started): 30 days of Advanced Compute at no cost - the right choice for a workshop account that is otherwise free. Start it a day or two before the session, not on the day.
+
+Check **Administration -> Consumption Management -> Advanced Compute Bundle** afterwards: usage shows up there (on the course account as non-billable; about 0.1 CCU per prompt). If neither switch is available to you, the cheat sheet reproduces every answer as NRQL so the lab works on a free account; the talking points are the same.
 
 1. Any page, **Ask AI** (top right). Prompt: `Show error logs from the Kubernetes namespace simplcommerce in the last hour`. Open the generated NRQL (**Open in query builder**). Expect `FROM Log WHERE namespace_name = 'simplcommerce' AND level = 'ERROR'` or similar. Check the attribute names against the Logs UI: in the rehearsal the model wrote `namespace = 'simplcommerce'` and reported "No logs found"; `namespace_name` returns hundreds of lines. The .NET `fail:` lines have no `level`, so add `OR message LIKE '%fail:%'` and compare counts. The follow-up `count them per 5 minutes as a chart` kept the context but filtered on `error.class IS NOT NULL`, an attribute the pod logs do not carry: a flat zero chart. `labs/07-nrai/prompts.md` records what each prompt produced.
 2. Same conversation: `count them per 5 minutes as a chart`. The chat is stateful and should add `TIMESERIES 5 minutes`; if it switches to another event type, the context was lost. Write self-contained prompts anyway.
@@ -187,7 +192,7 @@ On: Kubernetes, APM, Logs, Triage Inbox (Errors inbox), Performance Risks, Issue
 
 | Capability | Gate | Workaround |
 |---|---|---|
-| New Relic AI (Ask AI, Explain this error, Response Intelligence summary) | Advanced Compute add-on | `labs/07-nrai/nrql-cheatsheet.md`; demo on a paid account |
+| New Relic AI (Ask AI, Explain this error, Response Intelligence summary) | Advanced Compute add-on - the Ask AI panel says *Offline* until an admin activates it in **Administration -> Feature Control** or starts the **Advanced Compute - 30 Day Trial** under **Administration -> Previews & Trials** | `labs/07-nrai/nrql-cheatsheet.md`; or start the 30-day trial before the session |
 | Autopilot, Agentic Platform, Security RX, Workflow Automation | Advanced Compute add-on | talk track (deck slide 10) |
 | Second full platform user | 1 free; Standard $10 first + $99/user | trainees follow on the presenter's screen; Basic users can run NRQL and see alerts |
 | APM, Browser, Mobile UI for Basic users | user type | Core or Full Platform user |

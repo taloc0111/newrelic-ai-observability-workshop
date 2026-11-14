@@ -1,6 +1,6 @@
 # Lab 4 - New Relic AI (generative AI) - prompt sheet
 
-**Where:** the **Ask AI** button, top right of most New Relic pages (also inside the Query builder, the Issue page, Errors inbox and Logs). New Relic AI is GA since 4 Jun 2025 and **consumes Advanced Compute units**: on an account without the Advanced Compute add-on the button is missing or disabled. If that is your account, run the NRQL in `nrql-cheatsheet.md` by hand and keep the talking points; the lab still works, only the "English in" part is missing.
+**Where:** the **Ask AI** button, top right of most New Relic pages (also inside the Query builder, the Issue page, Errors inbox and Logs). New Relic AI is GA since 4 Jun 2025 and **consumes Advanced Compute units**: on an account without the add-on the panel opens but says **"Ask AI - Offline: requires the Advanced Compute add-on"**. An admin switches it on under **Administration -> Feature Control -> New Relic AI -> Activate**, or starts the free **Advanced Compute - 30 Day Trial** under **Administration -> Previews & Trials -> Trials** (do it a day before, not during the session). If neither is possible, run the NRQL in `nrql-cheatsheet.md` by hand and keep the talking points; the lab still works, only the "English in" part is missing.
 
 Every prompt below follows the same loop: ask, **open the generated NRQL before you trust the number**, compare with a screen you already know (Lab 3 Issue page, APM Summary), then ask a follow-up.
 
