@@ -150,7 +150,7 @@ Expect two ACTIVATED issues: the merged one on SimplCommerce (`incidents: 2`) an
 
 ## Lab 6 - NRQL Predictions (homework)
 
-Needs a few hours of load-generator history (3-4 hours is enough). Kit: `labs/09-predictions`.
+Needs a few hours of load-generator history (3-4 hours is enough). Kit: `labs/09-predictions`. If you built the cluster today, skip ahead to Lab 7 now and come back here after 3-4 hours of load-generator traffic (overnight is ideal). Leave the cluster running: keep a WSL shell or k9s open, because WSL2 stops the VM when the last shell exits, and a stopped cluster has no history to predict from.
 
 1. **Query your data**, paste `predict.nrql` (request count per 5 minutes, 6 hours, `PREDICT`), Run. The chart extends with the forecast and a confidence band; hover the dashed part.
 2. Variants in the same file: `PREDICT BY 2 hours USING 12 hours` (look further, train longer - the clause order is `BY` then `USING`, the other way round is a syntax error) and a capacity trend on SQL Server memory (`K8sContainerSample`, 1-hour buckets, 2 days ahead). History plus forecast must stay under 366 buckets: `TIMESERIES 10 minutes ... PREDICT BY 7 days` is 1,152 and is rejected, so widen the bucket when you look further out. Only Holt-Winters is available (`PREDICT holtwinters(seasonality: AUTO, alpha: 0.2)` to tune it).

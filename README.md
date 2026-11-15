@@ -54,7 +54,7 @@ Labs are numbered in the order you would build this for real, and each one prepa
 3. **Lab 3** - Incident Intelligence: stop SQL Server, watch incidents correlate into one issue with context, roll back, watch it close itself (15 min)
 4. **Lab 4** - New Relic AI: Ask AI to NRQL, Explain this error, Response Intelligence - and how to read what it generates (8 min; NRQL fallback on free accounts)
 5. **Lab 5** - detection as code: NRQL condition on error logs, prove it fires and correlates (5 min)
-6. **Lab 6** - NRQL Predictions and predictive alerting (homework: needs a few hours of traffic)
+6. **Lab 6** - NRQL Predictions and predictive alerting (homework: needs 3-4 hours of traffic, so do Lab 7 first and come back; keep the cluster running)
 7. **Lab 7** - AI Monitoring for an LLM service (optional). Stack: FastAPI + OpenAI Python SDK against an OpenAI-compatible endpoint - by default **Ollama + qwen2.5:0.5b** inside the cluster (free, no key) - instrumented by the **New Relic Python agent** (AI Monitoring), read in the **AI Monitoring** UI
 8. **Lab 8** - Ground Truth (the New Relic MCP server, GA) from your IDE agent (talk track: needs the MCP Server switch in Feature Control, which the course account does not offer)
 
