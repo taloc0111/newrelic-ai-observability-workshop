@@ -12,6 +12,8 @@ bash ~/nr-training/labs/04-alerts/create-alert-policy.sh      # idempotent: poli
 
 Open **Alerts**, **Alert conditions (policies)**, `nr-workshop`. **First, one click the script cannot do**: policy **Settings**, tick **Correlate and suppress noise**, Save. A policy created through NerdGraph has it off, and without it Incident Intelligence never merges alert events into one issue: Lab 3 and Lab 5 would show two issues and two pushes instead of one. (Rehearsal 2026-11-15: forgot the tick, got two uncorrelated issues; the fix does not merge issues that are already open, only the next ones.)
 
+![Figure 5 - Policy nr-workshop, Settings: Correlate and suppress noise ticked; issue creation preference stays "One issue per condition and signal".](assets/screens/lab1-policy-correlate.png)
+
 1. **Gen 2, fixed threshold** - `SimplCommerce error rate > 5%`: NRQL `percentage(count(*), WHERE error IS true) FROM Transaction`, signal 60 s window evaluated on an **event timer**, critical above 5 for 1 minute, and a **loss of signal** rule: no data for 3 minutes opens an alert event ("the app stopped reporting") and data coming back closes it. This is what fires in Lab 3 and on `faults.sh 500s`.
 2. **Gen 1, baseline (anomaly)** - `SimplCommerce response time anomaly`: same signal settings, direction upper only, threshold 3 standard deviations for 5 minutes. The chart shows the learned band growing as history arrives. It learns faster than you expect on steady load-generator traffic: in the rehearsal it opened its first WARNING issue about 5 hours after creation, on a 3x response-time blip that lasted 5 minutes, and closed it 5 minutes later.
 3. Open the fixed condition, **View as code**: the NRQL and the terms the script sent. Exercise: change the threshold to 10 in the UI, Save, rerun the script - it reports "condition exists" and leaves your change; delete the condition and rerun to recreate it.
@@ -227,7 +229,7 @@ On: Kubernetes, APM, Logs, Triage Inbox (Errors inbox), Performance Risks, Issue
 
 ## Appendix D - Maturity ladder
 
-![Figure 5 - Maturity ladder.](assets/fig-best-practice-ladder.png)
+![Figure 6 - Maturity ladder.](assets/fig-best-practice-ladder.png)
 
 | Level | Practice | Labs |
 |---|---|---|
