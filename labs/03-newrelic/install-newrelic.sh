@@ -31,7 +31,7 @@ kubectl -n simplcommerce rollout restart deployment/simplcommerce
 kubectl -n simplcommerce rollout status deployment/simplcommerce --timeout=600s
 
 echo "== injection proof (expect an initContainer with 'newrelic' in its name + CORECLR_PROFILER / NEW_RELIC_APP_NAME env) =="
-POD=$(kubectl -n simplcommerce get pod -l app=simplcommerce -o jsonpath='{.items[0].metadata.name}')
+POD=$(kubectl -n simplcommerce get pod -l app=simplcommerce --field-selector=status.phase=Running --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1:].metadata.name}')   # newest Running pod: the old one may still be Terminating after the rollout
 kubectl -n simplcommerce get pod "$POD" -o jsonpath='{.spec.initContainers[*].name}'; echo
 kubectl -n simplcommerce get pod "$POD" -o jsonpath='{range .spec.containers[?(@.name=="web")].env[*]}{.name}{"\n"}{end}' | grep -E "CORECLR|^NEW_RELIC_" | head
 kubectl -n simplcommerce get secret newrelic-key-secret >/dev/null 2>&1 && echo "newrelic-key-secret present in simplcommerce (copied by the operator)" \
