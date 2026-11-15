@@ -40,12 +40,12 @@ The labs push one fault through the whole picture, in the order you would build 
 | Windows 10/11 with WSL2 + Ubuntu | `wsl -l -v` shows VERSION 2. Missing: `wsl --install -d Ubuntu`, reboot |
 | 8 GB or more RAM for WSL2 (10 GB if you run Lab 7 with Ollama) | `wsl -e free -g`. Raise in `%UserProfile%\.wslconfig`: `[wsl2]` `memory=10GB`, then `wsl --shutdown` |
 | git in WSL | `wsl -e git --version` |
-| Access to the two repos: the lab kit https://dev.azure.com/loctad/application/_git/newrelic-ai-observability-workshop and the demo app https://dev.azure.com/loctad/application/_git/SimplCommerce | open both once in the browser (sign in) |
+| Access to the two repos: the lab kit https://github.com/taloc0111/newrelic-ai-observability-workshop (public, no sign-in) and the demo app https://dev.azure.com/loctad/application/_git/SimplCommerce | open the demo app once in the browser (sign in) |
 
 Clone the lab kit into WSL (the scripts are stored with Linux line endings, nothing to convert):
 
 ```bash
-git clone https://dev.azure.com/loctad/application/_git/newrelic-ai-observability-workshop ~/nr-training
+git clone https://github.com/taloc0111/newrelic-ai-observability-workshop.git ~/nr-training
 ls ~/nr-training/labs      # 00-tools ... 11-mcp
 ```
 
