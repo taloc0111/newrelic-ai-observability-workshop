@@ -44,5 +44,5 @@ for p in camera laptop headphones "running shoes" "coffee maker"; do
 done
 echo ">> New Relic ($NR_UI): AI Monitoring -> ai-descgen: requests, tokens, response time, errors; the AI Traces view shows prompt + completion."
 echo ">> NRQL: SELECT request.model, response.usage.total_tokens, duration FROM LlmChatCompletionSummary WHERE appName = 'ai-descgen' SINCE 30 minutes ago"
-echo ">> Errors? kubectl -n $NS logs deploy/ai-descgen --tail=50   (401 = LLM key; connection refused = base URL;"
+echo ">> All 5 answers above = the demo worked. Only if something is missing in the UI, read the log: kubectl -n $NS logs deploy/ai-descgen --tail=50   (401 = LLM key; connection refused = base URL;"
 echo "   'Unable to connect to collector' or 'license key invalid' = NEW_RELIC_LICENSE_KEY / NEW_RELIC_HOST (EU accounts need collector.eu01.nr-data.net))"
