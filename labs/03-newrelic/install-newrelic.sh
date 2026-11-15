@@ -31,8 +31,16 @@ kubectl -n simplcommerce rollout restart deployment/simplcommerce
 kubectl -n simplcommerce rollout status deployment/simplcommerce --timeout=600s
 
 echo "== injection proof (expect an initContainer with 'newrelic' in its name + CORECLR_PROFILER / NEW_RELIC_APP_NAME env) =="
-POD=$(kubectl -n simplcommerce get pod -l app=simplcommerce --field-selector=status.phase=Running --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1:].metadata.name}')   # newest Running pod: the old one may still be Terminating after the rollout
-kubectl -n simplcommerce get pod "$POD" -o jsonpath='{.spec.initContainers[*].name}'; echo
+# After the rollout the old pod can still be Terminating (phase still "Running"), so pick the newest pod that is not being
+# deleted, and retry a few times in case it is replaced while we look.
+for i in 1 2 3 4 5 6; do
+  POD=$(kubectl -n simplcommerce get pod -l app=simplcommerce --sort-by=.metadata.creationTimestamp \
+        -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.metadata.deletionTimestamp}{"\n"}{end}' | awk '$2 == "" {p=$1} END {print p}')
+  [ -n "$POD" ] && kubectl -n simplcommerce get pod "$POD" >/dev/null 2>&1 && break
+  sleep 5
+done
+echo "pod: $POD"
+echo "initContainers: $(kubectl -n simplcommerce get pod "$POD" -o jsonpath='{.spec.initContainers[*].name}')"
 kubectl -n simplcommerce get pod "$POD" -o jsonpath='{range .spec.containers[?(@.name=="web")].env[*]}{.name}{"\n"}{end}' | grep -E "CORECLR|^NEW_RELIC_" | head
 kubectl -n simplcommerce get secret newrelic-key-secret >/dev/null 2>&1 && echo "newrelic-key-secret present in simplcommerce (copied by the operator)" \
   || echo "WARN: newrelic-key-secret missing in simplcommerce - the operator did not replicate the license key; see Appendix C"
