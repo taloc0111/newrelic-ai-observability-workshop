@@ -126,6 +126,8 @@ bash ~/nr-training/labs/06-faults/faults.sh throw      # 30 exceptions = 60 fail
 
 Expect (rehearsal, 150 s burst): the alert events `simplcommerce error-log spike` and `SimplCommerce error rate > 5%` (Lab 1) open about 2.5-3 minutes after the burst starts, the compound alert a few seconds later, and Incident Intelligence **merges the first two into one issue** on entity SimplCommerce (`Contains: 2 events`; **Alerts -> Decisions** -> "Same New Relic Target ID" is the rule that matched); the compound condition opens its own issue. One push for the merged issue about 4 minutes in. The error-rate event closes as soon as the rate drops, the log event by loss of signal 4 minutes after the last error line, and the issue closes with it - about 4 minutes after the burst ends. A burst shorter than 2 minutes closes before the issue activates and nothing merges.
 
+![Figure 6 - The merged issue (clean run 2026-11-15): Alert events (2) - error rate and error-log spike - under one issue on SimplCommerce. The AI summary reads the error rate correctly but "What to check" recommends database work, although the fault was an injected exception: plausible, wrong, review before you quote it.](assets/screens/lab5-issue-merged.png)
+
 Notice:
 
 - **Run the NRQL in the Query builder first** with `TIMESERIES 1 minute`: if the chart is empty the attribute names are wrong, and the condition would never fire with no error in the UI.
@@ -229,7 +231,7 @@ On: Kubernetes, APM, Logs, Triage Inbox (Errors inbox), Performance Risks, Issue
 
 ## Appendix D - Maturity ladder
 
-![Figure 6 - Maturity ladder.](assets/fig-best-practice-ladder.png)
+![Figure 7 - Maturity ladder.](assets/fig-best-practice-ladder.png)
 
 | Level | Practice | Labs |
 |---|---|---|
