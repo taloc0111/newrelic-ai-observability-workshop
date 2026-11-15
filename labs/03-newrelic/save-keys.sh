@@ -5,12 +5,16 @@
 # Two keys, two jobs (Step 1 of the guide):
 #   License key  (40 chars, ends in NRAL)  = INGEST. Goes into the cluster (nri-bundle, agent injection, Lab 7 pod).
 #   User key     (NRAK-...)                = CONTROL PLANE. NerdGraph: policies, conditions, workflows, issues, change tracking.
-read -rp  "Account id (digits, top right of one.newrelic.com > account menu): " ACC
-read -rp  "Region [US/EU] (EU = data centre eu01, api.eu.newrelic.com): " REGION
-read -srp "License key (ingest, ends in NRAL): " LIC; echo
-read -srp "User API key (NRAK-...): " USR; echo
+trim() { local s="$1"; s="${s//$'\r'/}"; s="${s#"${s%%[![:space:]]*}"}"; s="${s%"${s##*[![:space:]]}"}"; printf '%s' "$s"; }   # strip CR and surrounding whitespace (pasted values often carry one)
+read -rp  "Account id (digits, top right of one.newrelic.com > account menu): " ACC; ACC="$(trim "$ACC")"
+[[ "$ACC" =~ ^[0-9]+$ ]] || { echo "account id must be digits only, got '$ACC'"; exit 1; }
+read -rp  "Region [US/EU] (EU = data centre eu01, api.eu.newrelic.com): " REGION; REGION="$(trim "$REGION")"
 REGION="${REGION:-US}"; REGION="${REGION^^}"
-case "$REGION" in US|EU) ;; *) echo "region must be US or EU"; exit 1 ;; esac
+case "$REGION" in US|EU) ;; *) echo "region must be US or EU, got '$REGION'"; exit 1 ;; esac
+read -srp "License key (ingest, ends in NRAL): " LIC; echo; LIC="$(trim "$LIC")"
+[[ ${#LIC} -eq 40 && "$LIC" == *NRAL ]] || { echo "license key should be 40 characters ending in NRAL (got ${#LIC} characters) - copy the Ingest - License key, not the User key"; exit 1; }
+read -srp "User API key (NRAK-...): " USR; echo; USR="$(trim "$USR")"
+[[ "$USR" == NRAK-* ]] || { echo "user key must start with NRAK- - create a key of type User"; exit 1; }
 {
   printf 'export NEW_RELIC_ACCOUNT_ID="%s"\n' "$ACC"
   printf 'export NEW_RELIC_REGION="%s"\n' "$REGION"
