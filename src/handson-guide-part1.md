@@ -69,6 +69,8 @@ python3 ~/nr-training/labs/lib/nerdgraph.py ~/nr-training/labs/03-newrelic/whoam
 
 New Relic AI (Lab 4) is a paid capability: on a free account the **Ask AI** panel says *Offline - requires the Advanced Compute add-on*. Decide now: an admin switches it on a day or two ahead (**Administration -> Feature Control -> New Relic AI -> Activate**, or the free 30-day *Advanced Compute* trial under **Previews & Trials**), or you run the NRQL fallback.
 
+![Figure 4 - Administration -> Previews & Trials -> Trials: the "Advanced Compute - 30 Day Trial" row (status Available) before it is started; it disappears from the list once activated.](assets/screens/admin-trials-advanced-compute.png)
+
 ## Step 2 - Local Kubernetes cluster
 
 ```bash

@@ -89,7 +89,7 @@ Goal: natural language in, NRQL out - and learn to read what comes out. Kit: `la
 New Relic AI is GA (June 2025) and billed as **Advanced Compute**. On a free account the **Ask AI** button is still there but the panel says **"Ask AI - Offline: Ask AI requires the Advanced Compute add-on"** with a *Get access* link (and, next to it, **Autopilot** in public preview at no cost, with its own *Get access*). Two places switch it on, both as the account owner/admin:
 
 1. **Administration -> Feature Control -> New Relic AI -> Activate** (the Feature Control Manager; the page warns "we start billing for usage as soon as you activate a feature"). On the course account this reads *On for all accounts*, and Ask AI is online.
-2. **Administration -> Previews & Trials -> Trials -> "Advanced Compute - 30 Day Trial"** (status *Available* until started): 30 days of Advanced Compute at no cost - the right choice for a workshop account that is otherwise free. Start it a day or two before the session, not on the day.
+2. **Administration -> Previews & Trials -> Trials -> "Advanced Compute - 30 Day Trial"** (status *Available* until started) - see Figure 4 in Step 1, taken before activation: 30 days of Advanced Compute at no cost - the right choice for a workshop account that is otherwise free. Start it a day or two before the session, not on the day.
 
 Check **Administration -> Consumption Management -> Advanced Compute Bundle** afterwards: usage shows up there (on the course account as non-billable; about 0.1 CCU per prompt). If neither switch is available to you, the cheat sheet reproduces every answer as NRQL so the lab works on a free account; the talking points are the same.
 
@@ -227,7 +227,7 @@ On: Kubernetes, APM, Logs, Triage Inbox (Errors inbox), Performance Risks, Issue
 
 ## Appendix D - Maturity ladder
 
-![Figure 4 - Maturity ladder.](assets/fig-best-practice-ladder.png)
+![Figure 5 - Maturity ladder.](assets/fig-best-practice-ladder.png)
 
 | Level | Practice | Labs |
 |---|---|---|
