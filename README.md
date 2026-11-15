@@ -72,4 +72,4 @@ The question goes through the instrumented `ai-descgen` service, so it appears i
 
 ## Secrets
 
-Two New Relic keys are used: the **license key** (ingest; nri-bundle, agent injection, the Lab 7 pod - stored in `~/.nr-keys` by `save-keys.sh`, chmod 600, and in Kubernetes Secrets) and a **User key** (`NRAK-`; NerdGraph for Labs 1, 2, 3, 5, 6 and the MCP server in Lab 8 - `~/.nr-keys` only). Never commit them, paste them into chat or put them in a notes file. The SQL Server password in `labs/02-app/k8s/app.yaml` is a throwaway demo value for the local cluster.
+Two New Relic keys are used, both created for the workshop and named with the `nr-workshop-` prefix so they can be deleted afterwards: the **license key** `nr-workshop-license` (ingest; nri-bundle, agent injection, the Lab 7 pod - stored in `~/.nr-keys` by `save-keys.sh`, chmod 600, and in Kubernetes Secrets) and a **User key** `nr-workshop-user` (`NRAK-`; NerdGraph for Labs 1, 2, 3, 5, 6 and the MCP server in Lab 8 - `~/.nr-keys` only). Never commit them, paste them into chat or put them in a notes file. The SQL Server password in `labs/02-app/k8s/app.yaml` is a throwaway demo value for the local cluster.

@@ -244,4 +244,4 @@ kubectl delete ns simplcommerce && bash ~/nr-training/labs/02-app/build-and-depl
 kind delete cluster --name nr-workshop                                       # full reset, then Steps 2-4 again (~10 min, images cached)
 ```
 
-Workshop-only cleanup of WSL: `kind delete cluster --name nr-workshop`, `docker rmi simplcommerce:v1 ai-descgen:v1`, `rm -rf ~/src/SimplCommerce ~/nr-training ~/.nr-keys ~/.nr-policy-id`. Account: **Alerts -> Workflows / Destinations / Alert conditions**, delete the `nr-workshop*` objects; **API keys**, delete `nr-workshop-user`; the `nr-workshop` cluster entity disappears after retention.
+Workshop-only cleanup of WSL: `kind delete cluster --name nr-workshop`, `docker rmi simplcommerce:v1 ai-descgen:v1`, `rm -rf ~/src/SimplCommerce ~/nr-training ~/.nr-keys ~/.nr-policy-id`. Account: **Alerts -> Workflows / Destinations / Alert conditions**, delete the `nr-workshop*` objects; **API keys**, delete `nr-workshop-user` and `nr-workshop-license` (filter on `nr-workshop-`); the `nr-workshop` cluster entity disappears after retention.

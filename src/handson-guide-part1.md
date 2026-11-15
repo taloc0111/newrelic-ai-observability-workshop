@@ -55,8 +55,8 @@ Do not install Docker Desktop; Step 2 installs Docker Engine and the tools.
 
 1. Sign up at https://newrelic.com/signup (free tier: 100 GB/month, 1 full platform user, no card). Pick the data region (US or EU) and remember it: EU accounts use `one.eu.newrelic.com`, `api.eu.newrelic.com` and the collector `collector.eu01.nr-data.net`.
 2. **Account id**: top right, account menu, or in any URL after `accounts/`. Digits only.
-3. **License key** (ingest): avatar, **API keys**, the key of type *INGEST - LICENSE* (40 characters, ends in `NRAL`). This goes into the cluster: nri-bundle, agent injection, the Lab 7 pod.
-4. **User key**: same page, **Create a key**, type *User*, name `nr-workshop-user`. Starts with `NRAK-`. This is the control plane: NerdGraph for policies, conditions, workflows, issues, change tracking, and the MCP server in Lab 8.
+3. **License key** (ingest): avatar, **API keys**, **Create a key**, type *Ingest - License*, name `nr-workshop-license`. 40 characters, ends in `NRAL`. Do not use the account's built-in *License Key for Account ...*: it cannot be deleted, a key you create can. This key goes into the cluster: nri-bundle, agent injection, the Lab 7 pod.
+4. **User key**: same page, **Create a key**, type *User*, name `nr-workshop-user`, notes `workshop, delete after`. Starts with `NRAK-`. This is the control plane: NerdGraph for policies, conditions, workflows, issues, change tracking, and the MCP server in Lab 8.
 5. Store them (no-echo prompts, chmod 600) and check:
 
 ```bash
@@ -65,9 +65,9 @@ source ~/.nr-keys
 python3 ~/nr-training/labs/lib/nerdgraph.py ~/nr-training/labs/03-newrelic/whoami.graphql   # your email + account id
 ```
 
-> Keys are secrets: only in `~/.nr-keys` and in Kubernetes Secrets. Never in chat, notes or the repo. Two keys, not one: the license key can only write data, the User key can change the account; keeping them apart keeps the cluster least-privilege. Name the User key with the `nr-workshop-` prefix so cleanup is one filter.
+> Keys are secrets: only in `~/.nr-keys` and in Kubernetes Secrets. Never in chat, notes or the repo. Two keys, not one: the license key can only write data, the User key can change the account; keeping them apart keeps the cluster least-privilege. Name both keys with the `nr-workshop-` prefix (`nr-workshop-license`, `nr-workshop-user`) so cleanup after the workshop is one filter on the API keys page, and the built-in license key stays untouched.
 
-New Relic AI (Lab 4) is a paid capability: on a free account the **Ask AI** button is absent. Decide now whether you demo it on a paid account or run the NRQL fallback.
+New Relic AI (Lab 4) is a paid capability: on a free account the **Ask AI** panel says *Offline - requires the Advanced Compute add-on*. Decide now: an admin switches it on a day or two ahead (**Administration -> Feature Control -> New Relic AI -> Activate**, or the free 30-day *Advanced Compute* trial under **Previews & Trials**), or you run the NRQL fallback.
 
 ## Step 2 - Local Kubernetes cluster
 
