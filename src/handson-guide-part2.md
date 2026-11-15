@@ -138,6 +138,16 @@ Notice:
 
 Exercise, 3 minutes, UI only - **Compound alert** (Alerts -> Compound Alerts -> Create a compound alert condition): name `SimplCommerce compound: errors + error logs`, then pick `SimplCommerce error rate > 5%` and `simplcommerce error-log spike` (the form labels them `A` and `B`), expression **`A AND B`** - the aliases are mandatory, a bare `AND` fails with "trigger expression is missing aliases" - threshold duration 1 minute, policy `nr-workshop`, Save. On the next `throw` burst it opens its own issue titled "Compound alert: SimplCommerce compound: errors + error logs" and its own push, and closes once either component closes. A compound condition opens one alert event only when the expression over up to five ordinary conditions is true; the components can be silenced so only the compound one notifies. Put it next to what you just saw: Decisions is the AI merging issues after they open; a compound alert is you declaring the combination up front - deterministic, no learning, no CCU. Use it where you know the pattern, leave Decisions for the ones you do not.
 
+Prove the compound alert (wait until the previous issues are CLOSED first, or the new events join the old issue):
+
+```bash
+bash ~/nr-training/labs/06-faults/verify-issues.sh ALL   # until total: 0 or every issue CLOSED
+bash ~/nr-training/labs/06-faults/faults.sh throw        # 150 s
+bash ~/nr-training/labs/06-faults/verify-issues.sh       # 3-4 minutes later
+```
+
+Expect two ACTIVATED issues: the merged one on SimplCommerce (`incidents: 2`) and `Compound alert: SimplCommerce compound: errors + error logs` (`incidents: 1`), and two pushes (clean run 2026-11-14: merged issue at +2:50, compound at +4:00). When the burst ends the error-rate event closes first, which makes `A AND B` false, so the compound issue closes before the merged one; `verify-issues.sh ALL` shows both CLOSED about 4-7 minutes after the last error, with two CLOSED pushes.
+
 ## Lab 6 - NRQL Predictions (homework)
 
 Needs a few hours of load-generator history (3-4 hours is enough). Kit: `labs/09-predictions`.
