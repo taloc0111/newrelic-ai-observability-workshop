@@ -182,6 +182,8 @@ The script builds and kind-loads `ai-descgen:v1`, creates the Secret (LLM key + 
 
 Expect after 1-2 minutes (rehearsal: within 150 s): **APM -> ai-descgen**, left nav section **AI Monitoring -> AI Traces**: total traces, response time, token usage per trace (p99 122 on the rehearsal), error rate, and a table with one row per call - request text, response text, completions, total tokens, model, duration - because `RECORD_CONTENT_ENABLED` is on (off by default for a reason). The same nav section holds **Model Inventory**, **LLM Evaluation** (the Oct 2026 AI Evaluation feature, already in the UI), **AI Agents** and **AI Tools**; "See full AI monitoring" opens the account-wide view; **APM -> ai-descgen -> Distributed tracing** shows the LLM span inside the `/describe` transaction. In the Query builder: `SELECT request.model, response.usage.total_tokens, duration FROM LlmChatCompletionSummary WHERE appName = 'ai-descgen'`. A NRQL condition on `sum(response.usage.total_tokens)` is the "alert on token spend" story from the deck (Lab 5 mechanism).
 
+![Figure 7 - APM -> ai-descgen -> AI Traces after run-demo.sh (2026-11-15): one row per LLM call with prompt, completion, token count and model qwen2.5:0.5b; the entity keeps rows from an earlier run until they age out, and the last calls of a batch appear a few seconds later.](assets/screens/lab7-ai-traces-2026-11-15.png)
+
 Try your own prompts - always through the instrumented service, so every question becomes an LLM event:
 
 ```bash
@@ -241,7 +243,7 @@ On: Kubernetes, APM, Logs, Triage Inbox (Errors inbox), Performance Risks, Issue
 
 ## Appendix D - Maturity ladder
 
-![Figure 7 - Maturity ladder.](assets/fig-best-practice-ladder.png)
+![Figure 8 - Maturity ladder.](assets/fig-best-practice-ladder.png)
 
 | Level | Practice | Labs |
 |---|---|---|
