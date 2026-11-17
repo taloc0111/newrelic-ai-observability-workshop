@@ -11,6 +11,12 @@ PREDICT
 -- Clause order is PREDICT [holtwinters(...)] [BY <span>] [USING <span>]; USING before BY is a syntax error.
 -- SELECT count(*) FROM Transaction WHERE appName = 'SimplCommerce' TIMESERIES 5 minutes SINCE 12 hours ago PREDICT BY 2 hours USING 12 hours
 
+-- Cluster was stopped overnight (WSL2 stops the VM when the last shell closes) and the last 6 hours are empty?
+-- Point the window at your last continuous block of traffic with absolute times (UTC offset included): PREDICT forecasts
+-- from the UNTIL mark, so the dashed part starts there. Find the block with:
+--   SELECT count(*) FROM Transaction WHERE appName = 'SimplCommerce' SINCE 3 days ago TIMESERIES 2 hours
+-- SELECT count(*) FROM Transaction WHERE appName = 'SimplCommerce' SINCE '2026-11-15 21:00:00 +07:00' UNTIL '2026-11-16 07:00:00 +07:00' TIMESERIES 5 minutes PREDICT
+
 -- Capacity trend ("memory full in N days"): SQL Server working set on the kind node, 2 days ahead.
 -- History buckets + forecast buckets must stay under 366 (NRDB limit), so widen the bucket when you look further out.
 -- (K8sVolumeSample on kind carries no pvcName for mssql-data, so a PVC forecast is empty here.)
