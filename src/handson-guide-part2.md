@@ -154,9 +154,13 @@ Needs a few hours of load-generator history (3-4 hours is enough). Kit: `labs/09
 
 1. **Query your data**, paste query A1 from `predict.nrql` (request count per 5 minutes, 6 hours, `PREDICT`), Run. The chart extends with the forecast and a confidence band; hover the dashed part. If the cluster was stopped overnight and the last 6 hours are empty, use section B of the same file (B1-B3, same three queries on an absolute window): find your last continuous block of traffic (`SINCE 3 days ago TIMESERIES 2 hours`) and put it in `SINCE '...' UNTIL '...'` - PREDICT forecasts from the UNTIL mark (verified 2026-11-17 on the 15/11 21:00 - 16/11 07:00 block: 120 real + 24 predicted buckets). Steps 3-4 cannot use the past: the condition evaluates live data, so let the load generator run a few hours first.
 
+![Figure 7 - The "find your block" query (`SINCE 3 days ago TIMESERIES 2 hours`): each plateau is a stretch where the cluster was up and the load generator ran; the gaps are the nights the WSL VM was stopped. Pick the start and end of one plateau for SINCE/UNTIL.](assets/screens/lab6-find-traffic-block.png)
+
 ![Figure 8 - Query B1 on the 15/11 21:00 - 16/11 07:00 block: the solid line is the history, the dashed part after the UNTIL mark is the forecast.](assets/screens/lab6-predict-past-window.png)
 
-![Figure 9 - Query B3, SQL Server memory 2 days ahead: with no trend in the history the forecast is flat at ~983 MB. PREDICT extrapolates a trend; it does not invent one.](assets/screens/lab6-predict-memory-flat.png)
+![Figure 9 - Query B2, `PREDICT BY 2 hours USING 8 hours` on the same block: trained on the last 8 hours only, so the early spikes do not pull the forecast; with no trend in that history the forecast stays flat.](assets/screens/lab6-predict-by-using.png)
+
+![Figure 10 - Query B3, SQL Server memory 2 days ahead: with no trend in the history the forecast is flat at ~983 MB. PREDICT extrapolates a trend; it does not invent one.](assets/screens/lab6-predict-memory-flat.png)
 2. Variants in the same file (A2, A3): `PREDICT BY 2 hours USING 12 hours` (look further, train longer - the clause order is `BY` then `USING`, the other way round is a syntax error) and a capacity trend on SQL Server memory (`K8sContainerSample`, 1-hour buckets, 2 days ahead). History plus forecast must stay under 366 buckets: `TIMESERIES 10 minutes ... PREDICT BY 7 days` is 1,152 and is rejected, so widen the bucket when you look further out. Only Holt-Winters is available (`PREDICT holtwinters(seasonality: AUTO, alpha: 0.2)` to tune it).
 3. **Predictive alerting**: the docs say to enable **Predictive Alerts** under **Administration -> Previews & Trials** first; on the course account that page listed no such preview (only Response Intelligence) and the predictive condition worked without it, so check the page and move on if it is not there. Then open the Lab 1 fixed condition, **Edit**, enable **Predict future behavior** (predict by 1 hour) - the condition opens an alert event when the forecast is expected to cross the threshold. As code: `create-predictive-condition.sh` creates `SimplCommerce throughput predicted low` (static condition with `prediction: { predictBy: 3600 }` on the term; NerdGraph accepted it in the rehearsal). Constraints: static thresholds only; look-ahead between 2x and 360x the window. Create or enable it only after Lab 3: in the rehearsal it reacted to the outage's 15 minutes of zero traffic with a "Predicted: < 10" event dated an hour ahead, which merged into the Lab 3 issue and kept it open.
 4. Prove it: scale the load generator (the `loadgen` deployment from Step 3, the pod that keeps calling SimplCommerce) to 0, watch the throughput chart and forecast dive, then scale back to 1:
@@ -196,7 +200,7 @@ The script builds and kind-loads `ai-descgen:v1`, creates the Secret (LLM key + 
 
 Expect after 1-2 minutes (rehearsal: within 150 s): **APM -> ai-descgen**, left nav section **AI Monitoring -> AI Traces**: total traces, response time, token usage per trace (p99 122 on the rehearsal), error rate, and a table with one row per call - request text, response text, completions, total tokens, model, duration - because `RECORD_CONTENT_ENABLED` is on (off by default for a reason). The same nav section holds **Model Inventory**, **LLM Evaluation** (the Oct 2026 AI Evaluation feature, already in the UI), **AI Agents** and **AI Tools**; "See full AI monitoring" opens the account-wide view; **APM -> ai-descgen -> Distributed tracing** shows the LLM span inside the `/describe` transaction. In the Query builder: `SELECT request.model, response.usage.total_tokens, duration FROM LlmChatCompletionSummary WHERE appName = 'ai-descgen'`. A NRQL condition on `sum(response.usage.total_tokens)` is the "alert on token spend" story from the deck (Lab 5 mechanism).
 
-![Figure 7 - APM -> ai-descgen -> AI Traces after run-demo.sh (2026-11-15): one row per LLM call with prompt, completion, token count and model qwen2.5:0.5b; the entity keeps rows from an earlier run until they age out, and the last calls of a batch appear a few seconds later.](assets/screens/lab7-ai-traces-2026-11-15.png)
+![Figure 11 - APM -> ai-descgen -> AI Traces after run-demo.sh (2026-11-15): one row per LLM call with prompt, completion, token count and model qwen2.5:0.5b; the entity keeps rows from an earlier run until they age out, and the last calls of a batch appear a few seconds later.](assets/screens/lab7-ai-traces-2026-11-15.png)
 
 Try your own prompts - always through the instrumented service, so every question becomes an LLM event:
 
@@ -257,7 +261,7 @@ On: Kubernetes, APM, Logs, Triage Inbox (Errors inbox), Performance Risks, Issue
 
 ## Appendix D - Maturity ladder
 
-![Figure 10 - Maturity ladder.](assets/fig-best-practice-ladder.png)
+![Figure 12 - Maturity ladder.](assets/fig-best-practice-ladder.png)
 
 | Level | Practice | Labs |
 |---|---|---|
